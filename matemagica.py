@@ -11,12 +11,12 @@ def main():
     RED = (220, 20, 60)
     GRAY = (200, 200, 200)
     SHADOW = (180, 180, 180)
-    BUTTON_COLOR = (255, 165, 0)       # Laranja claro
+    BUTTON_COLOR = (220, 20, 60)       # Laranja claro
     BUTTON_SHADOW = (204, 102, 0)      # Laranja queimado
     TEXT_COLOR = WHITE
 
     # Tela
-    WIDTH, HEIGHT = 1024, 640
+    WIDTH, HEIGHT = 1280, 768
     fundo = pygame.image.load("fundo.png")
     fundo = pygame.transform.scale(fundo, (WIDTH, HEIGHT))
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -65,15 +65,16 @@ def main():
         screen.fill(WHITE)
         screen.blit(fundo, (0, 0))
         for i, monte in enumerate(montes):
-            y_base = 50 + i * 180
+            y_base = 140 + i * 180
             for j, carta in enumerate(monte):
-                desenhar_carta(carta, 70 + j * 105, y_base)
+                desenhar_carta(carta, 200 + j * 105, y_base)
             # Desenhar sombra do botão
+            
             sombra = botoes[i].move(3, 3)
             pygame.draw.rect(screen, BUTTON_SHADOW, sombra, border_radius=10)
 
             # Desenhar botão principal
-            pygame.draw.rect(screen, BUTTON_COLOR, botoes[i], border_radius=10)
+            pygame.draw.rect(screen, BUTTON_COLOR, botoes[i], border_radius=10,)
 
             # Texto
             txt_btn = font_btn.render("Está aqui", True, TEXT_COLOR)
@@ -125,8 +126,8 @@ def main():
             step += 1
 
     cartas = embaralhar_cartas()
-    rodada = 0
-    botoes = [pygame.Rect(810, 50 + i * 180 + 40, 130, 50) for i in range(3)]
+    rodada = 0                                                                   
+    botoes = [pygame.Rect(1000, 130 + i * 180 + 40, 130, 50) for i in range(3)]
 
     running = True
     mostrar_revelacao = False
