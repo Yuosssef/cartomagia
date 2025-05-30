@@ -1,9 +1,30 @@
 import pygame
 import random
 import sys
+import threading
+import time
 
+# Som
+pygame.mixer.init()
+pygame.init()
+
+def som_rodada0():
+    som1 = pygame.mixer.Sound("escolha sua carta.mp3")
+    som2 = pygame.mixer.Sound("em que fileira esta.mp3")
+
+    som1.play()
+    time.sleep(som1.get_length())
+    som2.play()
+
+def som_rodada1():
+    som3 = pygame.mixer.Sound("pela segunda vez.mp3")
+    som3.play()
+
+def som_rodada2():
+    som4 = pygame.mixer.Sound("pela ultima vez.mp3")
+    som4.play()
+    
 def main():
-    pygame.init()
 
     # Cores
     WHITE = (255, 255, 255)
@@ -11,10 +32,11 @@ def main():
     RED = (220, 20, 60)
     GRAY = (200, 200, 200)
     SHADOW = (180, 180, 180)
-    BUTTON_COLOR = (220, 20, 60)       # Laranja claro
-    BUTTON_SHADOW = (204, 102, 0)      # Laranja queimado
+    BUTTON_COLOR = (220, 20, 60)
+    BUTTON_SHADOW = (204, 102, 0)
     TEXT_COLOR = WHITE
-
+     
+    
     # Tela
     WIDTH, HEIGHT = 1280, 768
     fundo = pygame.image.load("fundo.png")
@@ -22,13 +44,16 @@ def main():
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("Adivinhação das 21 Cartas")
 
-    # Fontes - fonte comum para Windows
+    # Fontes
     font = pygame.font.SysFont('Arial', 32)
     font_btn = pygame.font.SysFont('Arial', 28)
 
+    # Baralho
     suits = ['♥', '♦', '♣', '♠']
     values = ['A'] + [str(n) for n in range(2, 11)] + ['J', 'Q', 'K']
     baralho = [v + s for s in suits for v in values]
+    
+   
 
     def cor_carta(carta):
         return RED if '♥' in carta or '♦' in carta else BLACK
@@ -68,21 +93,18 @@ def main():
             y_base = 140 + i * 180
             for j, carta in enumerate(monte):
                 desenhar_carta(carta, 200 + j * 105, y_base)
-            # Desenhar sombra do botão
-            
+
             sombra = botoes[i].move(3, 3)
             pygame.draw.rect(screen, BUTTON_SHADOW, sombra, border_radius=10)
-
-            # Desenhar botão principal
-            pygame.draw.rect(screen, BUTTON_COLOR, botoes[i], border_radius=10,)
-
-            # Texto
+            pygame.draw.rect(screen, BUTTON_COLOR, botoes[i], border_radius=10)
             txt_btn = font_btn.render("Está aqui", True, TEXT_COLOR)
             text_rect = txt_btn.get_rect(center=botoes[i].center)
             screen.blit(txt_btn, text_rect)
-            pygame.display.flip()
+        pygame.display.flip()
+
 
     def mostrar_carta_escolhida(carta):
+        pygame.event.clear()  # Limpa todos os eventos pendentes
         screen.fill(WHITE)
         screen.blit(fundo, (0, 0))
         mensagem = font.render("A carta escolhida foi:", True, BLACK)
@@ -99,34 +121,10 @@ def main():
         screen.blit(texto, text_rect)
         pygame.display.flip()
         pygame.time.wait(5000)
-
-    def animar_embaralhamento(montes, escolha):
-        nova_ordem = recompor_cartas(montes, escolha)
-        cartas_animadas = list(nova_ordem)
-
-        # Animação de transição das cartas
-        x_inicial = [70 + i * 105 for i in range(7)]
-        y_inicial = [50 + i * 180 for i in range(3)]
-        x_destino = [70 + i * 105 for i in range(7)]
-        y_destino = [50 + i * 180 for i in range(3)]
-
-        step = 0
-        while step < 20:
-            screen.fill(WHITE)
-            screen.blit(fundo, (0, 0))
-
-            for i, carta in enumerate(cartas_animadas):
-                x_offset = (x_destino[i % 7] - x_inicial[i % 7]) * step / 20
-                y_offset = (y_destino[i % 3] - y_inicial[i % 3]) * step / 20
-
-                desenhar_carta(carta, x_inicial[i % 7] + x_offset, y_inicial[i % 3] + y_offset)
-
-            pygame.display.flip()
-            pygame.time.wait(50)
-            step += 1
+        pygame.event.clear()  # Garante que nenhum clique fique acumulado ao voltar
 
     cartas = embaralhar_cartas()
-    rodada = 0                                                                   
+    rodada = 0
     botoes = [pygame.Rect(1000, 130 + i * 180 + 40, 130, 50) for i in range(3)]
 
     running = True
@@ -137,6 +135,17 @@ def main():
         desenhar_montes(montes)
 
         esperando_click = True
+
+        if rodada == 0:
+            threading.Thread(target=som_rodada0).start()
+        elif rodada == 1:
+            threading.Thread(target=som_rodada1).start()
+        elif rodada == 2:
+            threading.Thread(target=som_rodada2).start()
+
+
+
+
         while esperando_click:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -147,25 +156,16 @@ def main():
                 elif event.type == pygame.MOUSEBUTTONDOWN and not mostrar_revelacao:
                     for i, botao in enumerate(botoes):
                         if botao.collidepoint(event.pos):
-                            animar_embaralhamento(montes, i)
                             cartas = recompor_cartas(montes, i)
                             rodada += 1
-
-                            # Espera o botão do mouse ser solto antes de aceitar novo clique
-                            esperando_up = False # Deixa assim! :)
+                            esperando_up = True
                             while esperando_up:
                                 for e in pygame.event.get():
                                     if e.type == pygame.MOUSEBUTTONUP:
                                         esperando_up = False
-                                        break
-
-                            pygame.event.clear()  # Limpa eventos pendentes para evitar múltiplos cliques
+                            pygame.event.clear()
                             esperando_click = False
                             break
-
-        if mostrar_revelacao:
-            # (Se quiser garantir que o fluxo aqui esteja correto)
-            pass
 
         if rodada == 3:
             mostrar_revelacao = True
@@ -174,11 +174,10 @@ def main():
             cartas = embaralhar_cartas()
             rodada = 0
             mostrar_revelacao = False
-        elif rodada > 3: # resolve paliativamente os clicks freneticos
+        elif rodada > 3:
             mostrar_revelacao = False
             cartas = embaralhar_cartas()
             rodada = 0
-			
 
     pygame.quit()
     sys.exit()
