@@ -9,14 +9,18 @@ pygame.mixer.init()
 pygame.init()
 
 def som_rodada0():
+    
     som1 = pygame.mixer.Sound("escolha sua carta.mp3")
     som2 = pygame.mixer.Sound("em que fileira esta.mp3")
 
     som1.play()
     time.sleep(som1.get_length())
     som2.play()
+    time.sleep(som2.get_length())
+   
 
 def som_rodada1():
+ 
     som3 = pygame.mixer.Sound("pela segunda vez.mp3")
     som3.play()
 
@@ -33,9 +37,8 @@ def main():
     GRAY = (200, 200, 200)
     SHADOW = (180, 180, 180)
     BUTTON_COLOR = (220, 20, 60)
-    BUTTON_SHADOW = (204, 102, 0)
+    BUTTON_SHADOW = (104, 00, 0)
     TEXT_COLOR = WHITE
-     
     
     # Tela
     WIDTH, HEIGHT = 1280, 768
@@ -45,15 +48,13 @@ def main():
     pygame.display.set_caption("Adivinhação das 21 Cartas")
 
     # Fontes
-    font = pygame.font.SysFont('Arial', 32)
-    font_btn = pygame.font.SysFont('Arial', 28)
+    font = pygame.font.SysFont('Times New Roman', 32)
+    font_btn = pygame.font.SysFont('Arial', 28, bold=True)
 
     # Baralho
     suits = ['♥', '♦', '♣', '♠']
     values = ['A'] + [str(n) for n in range(2, 11)] + ['J', 'Q', 'K']
     baralho = [v + s for s in suits for v in values]
-    
-   
 
     def cor_carta(carta):
         return RED if '♥' in carta or '♦' in carta else BLACK
@@ -101,11 +102,6 @@ def main():
             text_rect = txt_btn.get_rect(center=botoes[i].center)
             screen.blit(txt_btn, text_rect)
         pygame.display.flip()
-
-        
-       
-        
-
         
     def mostrar_carta_escolhida(carta):
         pygame.event.clear()  # Limpa todos os eventos pendentes
@@ -125,6 +121,7 @@ def main():
         screen.blit(texto, text_rect)
         pygame.display.flip()
             
+        # Som carta revelada
         carta = carta_escolhida
         ext = '.mp3'
         if carta[-1] == '♥': 
@@ -136,8 +133,7 @@ def main():
         elif carta[-1] == '♦':
             som_naipe = "ouros"+ ext
         som_carta = carta[:-1].lower() + ext
-        
-        
+       
         som1 = pygame.mixer.Sound("a carta escolhida foi.mp3")
         som2 = pygame.mixer.Sound(som_carta)
         som3 = pygame.mixer.Sound(som_naipe)
@@ -148,16 +144,15 @@ def main():
         som3.play()
         
         pygame.time.wait(5000)
-        pygame.event.clear()  # Garante que nenhum clique fique acumulado ao voltar
-        
+        pygame.event.clear()  # Garante que nenhum clique fique acumulado ao voltar      
         
     cartas = embaralhar_cartas()
     rodada = 0
-    botoes = [pygame.Rect(1000, 130 + i * 180 + 40, 130, 50) for i in range(3)]
+    botoes = [pygame.Rect(1000, 130 + i * 180 + 40, 150, 60) for i in range(3)]
 
     running = True
     mostrar_revelacao = False
-
+    
     while running:
         montes = distribuir_em_montes(cartas)
         desenhar_montes(montes)
@@ -165,14 +160,12 @@ def main():
         esperando_click = True
 
         if rodada == 0:
+   
             threading.Thread(target=som_rodada0).start()
         elif rodada == 1:
             threading.Thread(target=som_rodada1).start()
         elif rodada == 2:
             threading.Thread(target=som_rodada2).start()
-
-
-
 
         while esperando_click:
             for event in pygame.event.get():
@@ -195,6 +188,7 @@ def main():
                             esperando_click = False
                             break
 
+        # Ultima rodada
         if rodada == 3:
             mostrar_revelacao = True
             carta_escolhida = cartas[10]
@@ -202,15 +196,13 @@ def main():
             cartas = embaralhar_cartas()
             rodada = 0
             mostrar_revelacao = False
-        
-         
+       
+        # Deixar esse codigo: don't ask... :)
         elif rodada > 3:
             mostrar_revelacao = False
             cartas = embaralhar_cartas()
             rodada = 0
             
-            
-
     pygame.quit()
     sys.exit()
 
