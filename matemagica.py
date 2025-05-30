@@ -102,7 +102,11 @@ def main():
             screen.blit(txt_btn, text_rect)
         pygame.display.flip()
 
+        
+       
+        
 
+        
     def mostrar_carta_escolhida(carta):
         pygame.event.clear()  # Limpa todos os eventos pendentes
         screen.fill(WHITE)
@@ -120,9 +124,33 @@ def main():
         text_rect = texto.get_rect(center=(x + largura // 2, y + altura // 2))
         screen.blit(texto, text_rect)
         pygame.display.flip()
+            
+        carta = carta_escolhida
+        ext = '.mp3'
+        if carta[-1] == '♥': 
+            som_naipe = "copas"+ ext
+        elif carta[-1] == '♠':
+            som_naipe = "espadas"+ ext
+        elif carta[-1] == '♣':
+            som_naipe = "paus"+ ext
+        elif carta[-1] == '♦':
+            som_naipe = "ouros"+ ext
+        som_carta = carta[:-1].lower() + ext
+        
+        
+        som1 = pygame.mixer.Sound("a carta escolhida foi.mp3")
+        som2 = pygame.mixer.Sound(som_carta)
+        som3 = pygame.mixer.Sound(som_naipe)
+        som1.play()
+        time.sleep(som1.get_length())
+        som2.play()
+        time.sleep(som2.get_length())
+        som3.play()
+        
         pygame.time.wait(5000)
         pygame.event.clear()  # Garante que nenhum clique fique acumulado ao voltar
-
+        
+        
     cartas = embaralhar_cartas()
     rodada = 0
     botoes = [pygame.Rect(1000, 130 + i * 180 + 40, 130, 50) for i in range(3)]
@@ -174,10 +202,14 @@ def main():
             cartas = embaralhar_cartas()
             rodada = 0
             mostrar_revelacao = False
+        
+         
         elif rodada > 3:
             mostrar_revelacao = False
             cartas = embaralhar_cartas()
             rodada = 0
+            
+            
 
     pygame.quit()
     sys.exit()
